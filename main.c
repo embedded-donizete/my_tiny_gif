@@ -15,14 +15,18 @@ int main(int argc, char const *argv[])
     fseek(file, 0, SEEK_END);
     uint64_t size = ftell(file);
     fseek(file, 0, SEEK_SET);
-    uint8_t buff[size];
-    fread(buff, size, size, file);
+    uint8_t gif_data[size];
+    fread(gif_data, size, size, file);
 
-    if (!gif_has_a_valid_header(buff, size))
+    if (!gif_has_a_valid_header(gif_data))
     {
         fprintf(stderr, "Is it a GIF89a?");
         goto exit;
     }
+
+    uint8_t version[4] = {0};
+    gif_header_version(gif_data, version);
+    printf("%s", version);
 
 exit:
     fclose(file);

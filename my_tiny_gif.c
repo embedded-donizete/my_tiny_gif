@@ -2,11 +2,14 @@
 
 #include <my_tiny_gif.h>
 
-#define HEADER "GIF89a "
+static uint8_t HEADER[] = {'G', 'I', 'F'};
 
-bool gif_has_a_valid_header(uint8_t *data, uint64_t size)
+bool gif_has_a_valid_header(uint8_t *data)
 {
-    if (size < sizeof(HEADER))
-        return false;
     return !memcmp(data, HEADER, sizeof(HEADER));
+}
+
+void gif_header_version(uint8_t *data, uint8_t *version)
+{
+    memcpy(version, data + sizeof(HEADER), 3);
 }
