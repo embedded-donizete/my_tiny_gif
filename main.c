@@ -29,6 +29,10 @@ int main(int argc, char const *argv[])
 
     uint16_t global_color_map_size = gif_get_global_color_table_size(&screen_descriptor);
     printf("Global color map size: %d\n", global_color_map_size);
+
+    uint8_t global_color_map[global_color_map_size];
+    gif_get_global_color_table(gif_data, global_color_map, global_color_map_size);
+    printf("%d\n", global_color_map[0]);
 exit:
     fclose(file);
 

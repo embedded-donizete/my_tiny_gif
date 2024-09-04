@@ -36,3 +36,10 @@ uint16_t gif_get_global_color_table_size(const struct gif_screen_descriptor_t *p
     uint8_t bits_count = (ptr->packed_fields & GIF_SCREEN_PACKED_FIELDS_COLOR_TABLE_MASK) + 1;
     return 3 * pow(2, bits_count);
 }
+
+#define GIF_GLOBAL_COLOR_MAP_OFFSET 13
+
+void gif_get_global_color_table(const u_int8_t *gif, const u_int8_t *buffer, uint16_t size)
+{
+    memcpy(buffer, gif + GIF_GLOBAL_COLOR_MAP_OFFSET, size);
+}
