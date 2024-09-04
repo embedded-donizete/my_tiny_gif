@@ -20,13 +20,19 @@ int main(int argc, char const *argv[])
 
     if (!gif_has_a_valid_header(gif_data))
     {
-        fprintf(stderr, "Is it a GIF89a?");
+        fprintf(stderr, "Is it a GIF?");
         goto exit;
     }
 
     uint8_t version[4] = {0};
-    gif_header_version(gif_data, version);
-    printf("%s", version);
+    gif_signature_version(gif_data, version);
+    printf("Version %s\n", version);
+
+    uint16_t width = gif_screen_descriptor_width(gif_data);
+    uint16_t height = gif_screen_descriptor_height(gif_data);
+
+    printf("Width %d\n", width);
+    printf("Height %d\n", height);
 
 exit:
     fclose(file);
