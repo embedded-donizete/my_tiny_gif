@@ -3,18 +3,16 @@
 
 struct gif_signature_t
 {
-    unsigned char signature[7];
+    unsigned char buffer[7];
 };
 
 struct gif_screen_descriptor_t
 {
+    uint16_t width;
+    uint16_t height;
+    uint8_t packed_fields;
 };
 
 void gif_get_signature(const uint8_t *, struct gif_signature_t *);
-uint16_t gif_screen_width(uint8_t *data);
-uint16_t gif_screen_height(uint8_t *data);
-bool gif_has_global_color_table_flag(uint8_t *data);
-bool gif_has_sort_flag(uint8_t *data);
-uint8_t gif_color_resolution_bits(uint8_t *data);
-uint8_t gif_global_color_table_bits(uint8_t *data);
-uint16_t gif_global_color_table_size(uint8_t global_color_table_bits);
+void gif_get_screen_descriptor(const u_int8_t *, struct gif_screen_descriptor_t *);
+uint16_t gif_get_global_color_table_size(const struct gif_screen_descriptor_t *);

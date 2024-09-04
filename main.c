@@ -20,34 +20,15 @@ int main(int argc, char const *argv[])
 
     struct gif_signature_t signature;
     gif_get_signature(gif_data, &signature);
+    printf("Gif signature: %s\n", signature.buffer);
 
-    printf("Gif signature: %s\n", signature.signature);
+    struct gif_screen_descriptor_t screen_descriptor;
+    gif_get_screen_descriptor(gif_data, &screen_descriptor);
+    printf("Width: %d\n", screen_descriptor.width);
+    printf("Height: %d\n", screen_descriptor.height);
 
-    uint16_t width = gif_screen_width(gif_data);
-    uint16_t height = gif_screen_height(gif_data);
-
-    printf("Width %d\n", width);
-    printf("Height %d\n", height);
-
-    if (gif_has_sort_flag(gif_data))
-    {
-        printf("Gif has sort flag");
-    }
-
-    uint8_t bits_resolution = gif_color_resolution_bits(gif_data);
-    printf("Bits resolution %d\n", bits_resolution);
-
-    uint8_t global_color_table_bits = gif_global_color_table_bits(gif_data);
-    printf("Color table bits resolution %d\n", global_color_table_bits);
-
-    if (gif_has_global_color_table_flag(gif_data))
-    {
-        printf("Gif has global color map");
-        uint16_t global_color_table_size = gif_global_color_table_size(global_color_table_bits);
-        printf("Global color table size will be %d\n", global_color_table_size);
-        uint8_t global_color_table[global_color_table_size];
-    }
-
+    uint16_t global_color_map_size = gif_get_global_color_table_size(&screen_descriptor);
+    printf("Global color map size: %d\n", global_color_map_size);
 exit:
     fclose(file);
 
