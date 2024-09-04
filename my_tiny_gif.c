@@ -1,4 +1,5 @@
 #include <string.h>
+#include <math.h>
 
 #include <my_tiny_gif.h>
 
@@ -62,4 +63,9 @@ uint8_t gif_color_resolution_bits(uint8_t *data)
 uint8_t gif_global_color_table_bits(uint8_t *data)
 {
     return (data[GIF_SCREEN_PACKED_FIELDS_OFFSET] & GIF_SCREEN_PACKED_FIELDS_COLOR_TABLE_MASK) + 1;
+}
+
+uint16_t gif_global_color_table_size(uint8_t global_color_table_bits)
+{
+    return 3 * pow(2, global_color_table_bits);
 }

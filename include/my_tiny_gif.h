@@ -9,3 +9,4 @@ bool gif_has_global_color_table_flag(uint8_t *data);
 bool gif_has_sort_flag(uint8_t *data);
 uint8_t gif_color_resolution_bits(uint8_t *data);
 uint8_t gif_global_color_table_bits(uint8_t *data);
+uint16_t gif_global_color_table_size(uint8_t global_color_table_bits);

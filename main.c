@@ -34,11 +34,6 @@ int main(int argc, char const *argv[])
     printf("Width %d\n", width);
     printf("Height %d\n", height);
 
-    if (gif_has_global_color_table_flag(gif_data))
-    {
-        printf("Gif has global color map");
-    }
-
     if (gif_has_sort_flag(gif_data))
     {
         printf("Gif has sort flag");
@@ -47,8 +42,16 @@ int main(int argc, char const *argv[])
     uint8_t bits_resolution = gif_color_resolution_bits(gif_data);
     printf("Bits resolution %d\n", bits_resolution);
 
-    uint8_t color_table_bits = gif_global_color_table_bits(gif_data);
-    printf("Color table bits resolution %d\n", color_table_bits);
+    uint8_t global_color_table_bits = gif_global_color_table_bits(gif_data);
+    printf("Color table bits resolution %d\n", global_color_table_bits);
+
+    if (gif_has_global_color_table_flag(gif_data))
+    {
+        printf("Gif has global color map");
+        uint16_t global_color_table_size = gif_global_color_table_size(global_color_table_bits);
+        printf("Global color table size will be %d\n", global_color_table_size);
+        uint8_t global_color_table[global_color_table_size];
+    }
 
 exit:
     fclose(file);
