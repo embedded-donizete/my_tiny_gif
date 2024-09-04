@@ -38,7 +38,7 @@ uint16_t gif_screen_height(uint8_t *data)
 
 #define GIF_SCREEN_PACKED_FIELDS_M_MASK 0b10000000
 
-bool gif_has_global_color_map_flag(uint8_t *data)
+bool gif_has_global_color_table_flag(uint8_t *data)
 {
     return data[GIF_SCREEN_PACKED_FIELDS_OFFSET] & GIF_SCREEN_PACKED_FIELDS_M_MASK;
 }
@@ -48,4 +48,18 @@ bool gif_has_global_color_map_flag(uint8_t *data)
 bool gif_has_sort_flag(uint8_t *data)
 {
     return data[GIF_SCREEN_PACKED_FIELDS_OFFSET] & GIF_SCREEN_PACKED_FIELDS_SORT_MASK;
+}
+
+#define GIF_SCREEN_PACKED_FIELDS_COLOR_RESOLUTION_MASK 0b01110000
+
+uint8_t gif_color_resolution_bits(uint8_t *data)
+{
+    return ((data[GIF_SCREEN_PACKED_FIELDS_OFFSET] & GIF_SCREEN_PACKED_FIELDS_COLOR_RESOLUTION_MASK) >> 4) + 1;
+}
+
+#define GIF_SCREEN_PACKED_FIELDS_COLOR_TABLE_MASK 0b00000111
+
+uint8_t gif_global_color_table_bits(uint8_t *data)
+{
+    return (data[GIF_SCREEN_PACKED_FIELDS_OFFSET] & GIF_SCREEN_PACKED_FIELDS_COLOR_TABLE_MASK) + 1;
 }
