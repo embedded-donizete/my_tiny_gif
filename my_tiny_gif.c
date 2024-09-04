@@ -1,7 +1,12 @@
-#include <stdio.h>
+#include <string.h>
+
 #include <my_tiny_gif.h>
 
-void say_hello()
+#define HEADER "GIF89a "
+
+bool gif_has_a_valid_header(uint8_t *data, uint64_t size)
 {
-    printf("Hello, from my_tiny_gif!\n");
+    if (size < sizeof(HEADER))
+        return false;
+    return !memcmp(data, HEADER, sizeof(HEADER));
 }
