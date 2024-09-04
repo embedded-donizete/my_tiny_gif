@@ -28,11 +28,21 @@ int main(int argc, char const *argv[])
     gif_signature_version(gif_data, version);
     printf("Version %s\n", version);
 
-    uint16_t width = gif_screen_descriptor_width(gif_data);
-    uint16_t height = gif_screen_descriptor_height(gif_data);
+    uint16_t width = gif_screen_width(gif_data);
+    uint16_t height = gif_screen_height(gif_data);
 
     printf("Width %d\n", width);
     printf("Height %d\n", height);
+
+    if (gif_has_global_color_map_flag(gif_data))
+    {
+        printf("Gif has global color map");
+    }
+
+    if (gif_has_sort_flag(gif_data))
+    {
+        printf("Gif has sort flag");
+    }
 
 exit:
     fclose(file);

@@ -18,7 +18,7 @@ void gif_signature_version(uint8_t *data, uint8_t *version)
 
 #define GIF_SCREEN_DESCRIPTOR_WIDTH_OFFSET 6
 
-uint16_t gif_screen_descriptor_width(uint8_t *data)
+uint16_t gif_screen_width(uint8_t *data)
 {
     uint16_t width = data[GIF_SCREEN_DESCRIPTOR_WIDTH_OFFSET];
     width |= data[GIF_SCREEN_DESCRIPTOR_WIDTH_OFFSET + 1] << 8;
@@ -27,9 +27,25 @@ uint16_t gif_screen_descriptor_width(uint8_t *data)
 
 #define GIF_SCREEN_DESCRIPTOR_HEIGHT_OFFSET 8
 
-uint16_t gif_screen_descriptor_height(uint8_t *data)
+uint16_t gif_screen_height(uint8_t *data)
 {
     uint16_t height = data[GIF_SCREEN_DESCRIPTOR_HEIGHT_OFFSET];
     height |= data[GIF_SCREEN_DESCRIPTOR_HEIGHT_OFFSET + 1] << 8;
     return height;
+}
+
+#define GIF_SCREEN_PACKED_FIELDS_OFFSET 10
+
+#define GIF_SCREEN_PACKED_FIELDS_M_MASK 0b10000000
+
+bool gif_has_global_color_map_flag(uint8_t *data)
+{
+    return data[GIF_SCREEN_PACKED_FIELDS_OFFSET] & GIF_SCREEN_PACKED_FIELDS_M_MASK;
+}
+
+#define GIF_SCREEN_PACKED_FIELDS_SORT_MASK 0b00001000
+
+bool gif_has_sort_flag(uint8_t *data)
+{
+    return data[GIF_SCREEN_PACKED_FIELDS_OFFSET] & GIF_SCREEN_PACKED_FIELDS_SORT_MASK;
 }
