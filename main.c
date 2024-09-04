@@ -18,15 +18,10 @@ int main(int argc, char const *argv[])
     uint8_t gif_data[size];
     fread(gif_data, size, size, file);
 
-    if (!gif_has_a_valid_header(gif_data))
-    {
-        fprintf(stderr, "Is it a GIF?");
-        goto exit;
-    }
+    struct gif_signature_t signature;
+    gif_get_signature(gif_data, &signature);
 
-    uint8_t version[4] = {0};
-    gif_signature_version(gif_data, version);
-    printf("Version %s\n", version);
+    printf("Gif signature: %s\n", signature.signature);
 
     uint16_t width = gif_screen_width(gif_data);
     uint16_t height = gif_screen_height(gif_data);

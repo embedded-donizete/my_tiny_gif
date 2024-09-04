@@ -3,18 +3,10 @@
 
 #include <my_tiny_gif.h>
 
-static uint8_t HEADER[] = {'G', 'I', 'F'};
-
-bool gif_has_a_valid_header(uint8_t *data)
+void gif_get_signature(const uint8_t *gif, struct gif_signature_t *ptr)
 {
-    return !memcmp(data, HEADER, sizeof(HEADER));
-}
-
-#define GIF_SIGNATURE_VERSION_SIZE 3
-
-void gif_signature_version(uint8_t *data, uint8_t *version)
-{
-    memcpy(version, data + sizeof(HEADER), GIF_SIGNATURE_VERSION_SIZE);
+    memcpy(ptr, gif, 6);
+    ptr->signature[6] = 0;
 }
 
 #define GIF_SCREEN_DESCRIPTOR_WIDTH_OFFSET 6
