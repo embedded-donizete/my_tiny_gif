@@ -28,12 +28,18 @@ int main(int argc, char const *argv[])
     printf("Width: %d\n", screen_descriptor.width);
     printf("Height: %d\n", screen_descriptor.height);
 
-    uint16_t global_color_map_size = gif_get_global_color_table_size(&screen_descriptor);
-    printf("Global color map size: %d\n", global_color_map_size);
+    struct gif_state_t gif_state;
 
-    uint8_t global_color_map[global_color_map_size];
-    gif_get_global_color_table(gif_data, global_color_map, global_color_map_size);
-    printf("%d\n", global_color_map[0]);
+    uint16_t global_color_map_size = gif_get_global_color_table_size(&screen_descriptor);
+    uint8_t global_color_map_memory[global_color_map_size];
+
+    gif_state.global_color_map_size = global_color_map_size;
+    gif_state.global_color_map_memory = global_color_map_memory;
+
+    gif_start_state(gif_data, &gif_state);
+    printf("Global color map size: %d\n", gif_state.global_color_map_size);
+    printf("%d\n", global_color_map_memory[global_color_map_size - 1]);
+
 exit:
     fclose(file);
 

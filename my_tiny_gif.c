@@ -26,12 +26,13 @@ uint16_t gif_get_global_color_table_size(const struct gif_screen_descriptor_t *p
     if (!(ptr->packed_fields & GIF_SCREEN_PACKED_FIELDS_M_MASK))
         return 0;
     uint8_t bits_count = (ptr->packed_fields & GIF_SCREEN_PACKED_FIELDS_COLOR_TABLE_MASK) + 1;
-    return 3 * pow(2, bits_count);
+    uint16_t possibilities = pow(2, bits_count);
+    return 3 * possibilities;
 }
 
 #define GIF_GLOBAL_COLOR_MAP_OFFSET 13
 
-void gif_get_global_color_table(const u_int8_t *gif, u_int8_t *buffer, uint16_t size)
+void gif_start_state(const u_int8_t *const gif, struct gif_state_t *ptr)
 {
-    memcpy(buffer, gif + GIF_GLOBAL_COLOR_MAP_OFFSET, size);
+    memcpy(ptr->global_color_map_memory, gif + GIF_GLOBAL_COLOR_MAP_OFFSET, ptr->global_color_map_size);
 }
