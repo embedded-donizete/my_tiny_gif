@@ -3,7 +3,7 @@
 
 struct gif_signature_t
 {
-    unsigned char buffer[7];
+    unsigned char buffer[8];
 };
 
 struct gif_screen_descriptor_t
@@ -18,4 +18,4 @@ struct gif_screen_descriptor_t
 void gif_get_signature(const uint8_t *, struct gif_signature_t *);
 void gif_get_screen_descriptor(const u_int8_t *, struct gif_screen_descriptor_t *);
 uint16_t gif_get_global_color_table_size(const struct gif_screen_descriptor_t *);
-void gif_get_global_color_table(const u_int8_t *, const u_int8_t *, uint16_t);
+void gif_get_global_color_table(const u_int8_t *, u_int8_t *, uint16_t);
