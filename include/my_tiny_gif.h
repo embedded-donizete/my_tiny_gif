@@ -15,6 +15,13 @@ struct gif_screen_descriptor_t
     uint8_t pixel_aspect_ratio;
 };
 
+enum packet_fields_mask {
+    global_map_mask         = 0b10000000,
+    color_resolution_mask   = 0b01110000,
+    sort_mask_mask          = 0b00001000,
+    color_table_mask        = 0b00000111,
+};
+
 struct gif_state_t
 {
     uint8_t *global_color_map_memory;
