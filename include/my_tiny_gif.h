@@ -42,10 +42,15 @@ struct comment_extension {
 
 struct gif_global_state_t
 {
-    uint8_t *global_color_map_memory;
-    uint16_t global_color_map_size;
+    uint8_t *color_map_memory;
+    uint16_t color_map_size;
+    // where data starts after header and [global map]
+    uint16_t static_offset;
+    // where our current iteration is pointing to
+    uint16_t dynamic_offset;
 };
 
 void gif_get_header(const uint8_t *const _, struct gif_header_t *);
 void gif_get_logical_screen_descriptor(const u_int8_t *const _, struct gif_logical_screen_descriptor_t *);
 uint16_t gif_get_global_color_table_size(const struct gif_logical_screen_descriptor_t *);
+void gif_get_global_state(const uint8_t *const _, struct gif_global_state_t*);

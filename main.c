@@ -34,9 +34,12 @@ int main(int argc, char const *argv[])
     uint16_t global_color_map_size = gif_get_global_color_table_size(&logical_screen_descriptor);
     uint8_t global_color_map_memory[global_color_map_size];
 
-    gif_global_state.global_color_map_size = global_color_map_size;
-    gif_global_state.global_color_map_memory = global_color_map_memory;
+    gif_global_state.color_map_size = global_color_map_size;
+    gif_global_state.color_map_memory = global_color_map_memory;
 
+    gif_get_global_state(gif_data, &gif_global_state);
+    printf("Global offset: %x\n", gif_global_state.static_offset);
+    printf("Data at global offset: %x\n", gif_data[gif_global_state.static_offset]);
 exit:
     fclose(file);
 
