@@ -5,8 +5,8 @@
 
 void gif_get_signature(const uint8_t *gif, struct gif_signature_t *ptr)
 {
+    memset(ptr, 0, sizeof(struct gif_signature_t));
     memcpy(ptr, gif, sizeof(struct gif_signature_t));
-    ptr->buffer[sizeof(struct gif_signature_t) - 1] = 0;
 }
 
 #define GIF_SCREEN_DESCRIPTOR_OFFSET 6

@@ -3,7 +3,7 @@
 
 struct gif_signature_t
 {
-    unsigned char buffer[8];
+    unsigned char buffer[7];
 };
 
 struct gif_screen_descriptor_t
