@@ -19,12 +19,13 @@ int main(int argc, char const *argv[])
     uint8_t gif_data[size];
     fread(gif_data, size, size, file);
 
-    struct gif_signature_t signature;
-    gif_get_signature(gif_data, &signature);
-    printf("Gif signature: %s\n", signature.buffer);
+    struct gif_header_t header;
+    gif_get_header(gif_data, &header);
+    printf("Gif signature: %s\n", header.signature);
+    printf("Gif version: %s\n", header.version);
 
-    struct gif_screen_descriptor_t screen_descriptor;
-    gif_get_screen_descriptor(gif_data, &screen_descriptor);
+    struct gif_logical_screen_descriptor_t screen_descriptor;
+    gif_get_logical_screen_descriptor(gif_data, &screen_descriptor);
     printf("Width: %d\n", screen_descriptor.width);
     printf("Height: %d\n", screen_descriptor.height);
 

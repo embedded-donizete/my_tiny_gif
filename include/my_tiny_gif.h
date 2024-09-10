@@ -1,12 +1,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-struct gif_signature_t
-{
-    unsigned char buffer[7];
+enum gif_header_sizes_enum {
+    gif_header_signature_size = 3,
+    gif_header_version_size = 3,
+    gif_header_total_size = gif_header_signature_size + gif_header_version_size
 };
 
-struct gif_screen_descriptor_t
+struct gif_header_t
+{
+    uint8_t signature   [gif_header_signature_size + 1];
+    uint8_t version     [gif_header_version_size + 1];
+};
+
+enum gif_logical_screen_descriptor_packed_fields_bitwise_enum {
+    global_map_mask         = 0b10000000,
+    color_resolution_mask   = 0b01110000,
+    sort_mask_mask          = 0b00001000,
+    color_table_mask        = 0b00000111,
+};
+
+struct gif_logical_screen_descriptor_t
 {
     uint16_t width;
     uint16_t height;
@@ -15,11 +29,21 @@ struct gif_screen_descriptor_t
     uint8_t pixel_aspect_ratio;
 };
 
-enum packet_fields_mask {
-    global_map_mask         = 0b10000000,
-    color_resolution_mask   = 0b01110000,
-    sort_mask_mask          = 0b00001000,
-    color_table_mask        = 0b00000111,
+enum gif_extension_enum {
+    gif_application_extension = 0xFF21
+};
+
+struct gif_extension {
+    uint8_t introducer;
+    uint8_t label;
+};
+
+struct application_extension {
+    struct gif_extension header;
+};
+
+struct comment_extension {
+
 };
 
 struct gif_state_t
@@ -30,7 +54,7 @@ struct gif_state_t
     uint16_t *current_frame_pointer;
 };
 
-void gif_get_signature(const uint8_t *const _, struct gif_signature_t *);
-void gif_get_screen_descriptor(const u_int8_t *const _, struct gif_screen_descriptor_t *);
-uint16_t gif_get_global_color_table_size(const struct gif_screen_descriptor_t *);
+void gif_get_header(const uint8_t *const _, struct gif_header_t *);
+void gif_get_logical_screen_descriptor(const u_int8_t *const _, struct gif_logical_screen_descriptor_t *);
+uint16_t gif_get_global_color_table_size(const struct gif_logical_screen_descriptor_t *);
 void gif_start_state(const u_int8_t *const _, struct gif_state_t *);
