@@ -19,31 +19,26 @@ int main(int argc, char const *argv[])
     uint8_t gif_data[size];
     fread(gif_data, size, size, file);
 
-    struct gif_header_t header;
-    gif_get_header(gif_data, &header);
-    printf("Gif signature: %.*s\n", (int)sizeof(header.signature), header.signature);
-    printf("Gif version: %.*s\n", (int)sizeof(header.version), header.version);
+    struct gif_global_state_t gif_global_state;
+    gif_init_global_state(gif_data, &gif_global_state);
 
-    struct gif_logical_screen_descriptor_t logical_screen_descriptor;
-    gif_get_logical_screen_descriptor(gif_data, &logical_screen_descriptor);
+    struct gif_header_t header = gif_global_state.header;
+    printf("Gif signature: %.*s\n", 3, header.signature);
+    printf("Gif version: %.*s\n", 3, header.version);
+
+    struct gif_logical_screen_descriptor_t logical_screen_descriptor = gif_global_state.logical_screen_descriptor;
     printf("Width: %d\n", logical_screen_descriptor.width);
     printf("Height: %d\n", logical_screen_descriptor.height);
 
-    struct gif_global_state_t gif_global_state;
+    uint16_t global_color_map_size = gif_get_global_color_table_size(&gif_global_state);
+    uint8_t global_color_map_buffer[global_color_map_size];
+    gif_init_global_state_color_map(&gif_global_state, global_color_map_size, global_color_map_buffer);
+    printf("Color map: %d\n", global_color_map_buffer[global_color_map_size - 1]);
 
-    uint16_t global_color_map_size = gif_get_global_color_table_size(&logical_screen_descriptor);
-    uint8_t global_color_map_memory[global_color_map_size];
-
-    gif_global_state.color_map_size = global_color_map_size;
-    gif_global_state.color_map_memory = global_color_map_memory;
-
-    gif_get_global_state(gif_data, &gif_global_state);
-    printf("Global offset: %x\n", *gif_global_state.static_offset);
-
-    if (gif_is_special_purpose_block(gif_data, &gif_global_state))
+    if (gif_is_special_purpose_block(&gif_global_state))
     {
         struct special_purpose_block_t special_purpose_block;
-        gif_get_special_purpose_block(gif_data, &gif_global_state, &special_purpose_block);
+        gif_get_special_purpose_block(&gif_global_state, &special_purpose_block);
 
         switch (special_purpose_block.header)
         {
@@ -55,7 +50,7 @@ int main(int argc, char const *argv[])
             while (special_purpose_block.application_extension.sub_blocks_block_size)
             {
                 uint8_t sub_blocks[special_purpose_block.application_extension.sub_blocks_block_size];
-                gif_get_special_purpose_block_sub_blocks(gif_data, &gif_global_state, &special_purpose_block, sub_blocks);
+                gif_get_special_purpose_block_sub_blocks(&gif_global_state, &special_purpose_block, sub_blocks);
                 printf(
                     "Application extension sub blocks: %.*s\n",
                     special_purpose_block.application_extension.sub_blocks_block_size,
@@ -72,8 +67,6 @@ int main(int argc, char const *argv[])
         }
         }
     }
-
-    printf("Dynamic offset: %d\n", *gif_global_state.dynamic_offset);
 exit:
     fclose(file);
 

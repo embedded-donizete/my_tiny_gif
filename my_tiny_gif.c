@@ -3,46 +3,40 @@
 
 #include <my_tiny_gif.h>
 
-void gif_get_header(const uint8_t *gif, struct gif_header_t *ptr)
+void gif_init_global_state(const uint8_t *const gif, struct gif_global_state_t *ptr)
 {
-    memcpy(ptr, gif, sizeof(*ptr));
+    memset(ptr, 0, sizeof(*ptr));
+    ptr->gif_pointer = gif;
+
+    memcpy(&ptr->header, ptr->gif_pointer, sizeof(ptr->header));
+    ptr->gif_pointer += sizeof(ptr->header);
+
+    memcpy(&ptr->logical_screen_descriptor, ptr->gif_pointer, sizeof(ptr->logical_screen_descriptor));
+    ptr->gif_pointer += sizeof(ptr->logical_screen_descriptor);
 }
 
-void gif_get_logical_screen_descriptor(const u_int8_t *const gif, struct gif_logical_screen_descriptor_t *ptr)
+uint16_t gif_get_global_color_table_size(const struct gif_global_state_t *ptr)
 {
-    memcpy(ptr, gif + sizeof(struct gif_header_t), sizeof(*ptr));
-}
-
-uint16_t gif_get_global_color_table_size(const struct gif_logical_screen_descriptor_t *ptr)
-{
-    if (ptr->packed_fields & global_map_mask)
+    if (ptr->logical_screen_descriptor.packed_fields & global_map_mask)
     {
-        uint8_t bits_count = ptr->packed_fields & color_table_mask;
+        uint8_t bits_count = ptr->logical_screen_descriptor.packed_fields & color_table_mask;
         uint16_t possibilities = 2 << bits_count;
         return 3 * possibilities;
     }
     return 0;
 }
 
-void gif_get_global_state(const uint8_t *const gif, struct gif_global_state_t *ptr)
-{
-    uint16_t offset = 0;
-    offset += sizeof(struct gif_header_t);
-    offset += sizeof(struct gif_logical_screen_descriptor_t);
+void gif_init_global_state_color_map(struct gif_global_state_t *ptr, uint16_t size, uint8_t* buffer) {
+    ptr->color_map_buffer = buffer;
+    ptr->color_map_size = size;
 
-    if (ptr->color_map_size)
-    {
-        memcpy(ptr->color_map_memory, gif + offset, ptr->color_map_size);
-        offset += ptr->color_map_size;
-    }
-
-    ptr->static_offset = gif + offset;
-    ptr->dynamic_offset = gif + offset;
+    memcpy(buffer, ptr->gif_pointer, size);
+    ptr->gif_pointer += size;
 }
 
-bool gif_is_special_purpose_block(const uint8_t *const gif, struct gif_global_state_t *ptr)
+bool gif_is_special_purpose_block(struct gif_global_state_t *ptr)
 {
-    switch (*(uint16_t*)(ptr->dynamic_offset))
+    switch (*(uint16_t*)(ptr->gif_pointer))
     {
     case gif_application_extension:
     case gif_comment_extension:
@@ -53,26 +47,24 @@ bool gif_is_special_purpose_block(const uint8_t *const gif, struct gif_global_st
 }
 
 void gif_get_special_purpose_block(
-    const uint8_t *const gif,
     struct gif_global_state_t *state,
     struct special_purpose_block_t *block)
 {
-    memcpy(block, state->dynamic_offset, sizeof(*block));
-    state->dynamic_offset += sizeof(block->header);
+    memcpy(block, state->gif_pointer, sizeof(*block));
+    state->gif_pointer += sizeof(block->header);
 
     switch (block->header)
     {
     case gif_application_extension:
-        state->dynamic_offset += sizeof(block->application_extension);
+        state->gif_pointer += sizeof(block->application_extension);
         break;
     case gif_comment_extension:
-        state->dynamic_offset += sizeof(block->comment_extension);
+        state->gif_pointer += sizeof(block->comment_extension);
         break;
     }
 }
 
 void gif_get_special_purpose_block_sub_blocks(
-    const uint8_t *const gif,
     struct gif_global_state_t *state,
     struct special_purpose_block_t *block,
     uint8_t *const sub_blocks)
@@ -83,11 +75,11 @@ void gif_get_special_purpose_block_sub_blocks(
     {
         uint8_t sub_blocks_block_size = block->application_extension.sub_blocks_block_size;
 
-        memcpy(sub_blocks, state->dynamic_offset, sub_blocks_block_size);
-        state->dynamic_offset += sub_blocks_block_size;
+        memcpy(sub_blocks, state->gif_pointer, sub_blocks_block_size);
+        state->gif_pointer += sub_blocks_block_size;
 
-        memcpy(&block->application_extension.sub_blocks_block_size, state->dynamic_offset, sizeof(uint8_t));
-        state->dynamic_offset += sizeof(uint8_t);
+        memcpy(&block->application_extension.sub_blocks_block_size, state->gif_pointer, sizeof(uint8_t));
+        state->gif_pointer += sizeof(uint8_t);
 
         break;
     }
