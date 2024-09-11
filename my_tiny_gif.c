@@ -88,7 +88,7 @@ void gif_get_special_purpose_block_sub_blocks(
     }
 }
 
-bool gif_is_graphic_control_extension(struct gif_global_state_t *ptr)
+bool gif_is_control_block_extension(struct gif_global_state_t *ptr)
 {
     switch (*(uint16_t*)(ptr->gif_pointer))
     {
@@ -97,4 +97,10 @@ bool gif_is_graphic_control_extension(struct gif_global_state_t *ptr)
     default:
         return false;
     }
+}
+
+void gif_get_control_block_extension(struct gif_global_state_t *state, struct gif_control_block_extension_t *ptr)
+{
+    memcpy(ptr, state->gif_pointer, sizeof(*ptr));
+    state->gif_pointer += sizeof(*ptr);
 }

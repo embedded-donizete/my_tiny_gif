@@ -76,4 +76,23 @@ enum gif_control_block_label_enum
     gif_control_block_graphic_label = 0xF921
 };
 
-bool gif_is_graphic_control_extension(struct gif_global_state_t *);
+struct gif_control_block_extension_graphic_t
+{
+    uint8_t block_size;
+    uint8_t packed_fields;
+    uint16_t delay_time;
+    uint8_t transparent_color_index;
+    uint8_t block_terminator;
+};
+
+struct gif_control_block_extension_t
+{
+    uint16_t header;
+    union
+    {
+        struct gif_control_block_extension_graphic_t graphic;
+    };
+};
+
+bool gif_is_control_block_extension(struct gif_global_state_t *);
+void gif_get_control_block_extension(struct gif_global_state_t *, struct gif_control_block_extension_t *);
