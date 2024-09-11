@@ -42,21 +42,15 @@ void gif_get_global_state(const uint8_t *const gif, struct gif_global_state_t *p
 
 bool gif_is_special_purpose_block(const uint8_t *const gif, struct gif_global_state_t *ptr)
 {
-    uint16_t next;
-    memcpy(&next, gif + ptr->dynamic_offset, sizeof(next));
-    return next == gif_application_extension || next == gif_comment_extension;
-}
-
-// how would be cool to have a new language
-// with better support for algebraic types
-#define when_special_block_is(          \
-    block, exp1)                        \
-    switch (block->header)              \
-    {                                   \
-    case gif_application_extension:     \
-        exp1;                           \
-        break;                          \
+    switch (*((uint16_t *)(gif + ptr->dynamic_offset)))
+    {
+    case gif_application_extension:
+    case gif_comment_extension:
+        return true;
+    default:
+        return false;
     }
+}
 
 void gif_get_special_purpose_block(
     const uint8_t *const gif,
@@ -67,12 +61,15 @@ void gif_get_special_purpose_block(
 
     state->dynamic_offset += sizeof(block->header);
 
-    when_special_block_is(
-        block,
-        /* gif_application_extension -> */ {
-            state->dynamic_offset += sizeof(block->application_extension);
-        }
-    );
+    switch (block->header)
+    {
+    case gif_application_extension:
+        state->dynamic_offset += sizeof(block->application_extension);
+        break;
+    case gif_comment_extension:
+        state->dynamic_offset += sizeof(block->comment_extension);
+        break;
+    }
 }
 
 void gif_get_special_purpose_block_sub_blocks(
@@ -81,16 +78,21 @@ void gif_get_special_purpose_block_sub_blocks(
     struct special_purpose_block_t *block,
     uint8_t *const sub_blocks)
 {
-    when_special_block_is(
-        block,
-        /* gif_application_extension -> */ {
-            uint8_t sub_blocks_block_size = block->application_extension.sub_blocks_block_size;
+    switch (block->header)
+    {
+    case gif_application_extension:
+    {
+        uint8_t sub_blocks_block_size = block->application_extension.sub_blocks_block_size;
 
-            memcpy(sub_blocks, gif + state->dynamic_offset, sub_blocks_block_size);
-            state->dynamic_offset += sub_blocks_block_size;
+        memcpy(sub_blocks, gif + state->dynamic_offset, sub_blocks_block_size);
+        state->dynamic_offset += sub_blocks_block_size;
 
-            memcpy(&block->application_extension.sub_blocks_block_size, gif + state->dynamic_offset, sizeof(uint8_t));
-            state->dynamic_offset += sizeof(uint8_t);
-        }
-    );
+        memcpy(&block->application_extension.sub_blocks_block_size, gif + state->dynamic_offset, sizeof(uint8_t));
+        state->dynamic_offset += sizeof(uint8_t);
+
+        break;
+    }
+    case gif_comment_extension:
+        break;
+    }
 }
