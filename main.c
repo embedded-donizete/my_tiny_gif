@@ -35,14 +35,14 @@ int main(int argc, char const *argv[])
     gif_init_global_state_color_map(&gif_global_state, global_color_map_size, global_color_map_buffer);
     printf("Color map: %d\n", global_color_map_buffer[global_color_map_size - 1]);
 
-    if (gif_is_special_purpose_block(&gif_global_state))
+    while (gif_is_special_purpose_block(&gif_global_state))
     {
-        struct special_purpose_block_t special_purpose_block;
+        struct gif_special_purpose_block_t special_purpose_block;
         gif_get_special_purpose_block(&gif_global_state, &special_purpose_block);
 
         switch (special_purpose_block.header)
         {
-        case gif_application_extension:
+        case gif_special_purpose_block_application_label:
         {
             printf("Application extension identifier: %.*s\n", 8, special_purpose_block.application_extension.application_identifier);
             printf("Application extension auth code: %.*s\n", 3, special_purpose_block.application_extension.application_authentication_code);
@@ -59,13 +59,18 @@ int main(int argc, char const *argv[])
 
             break;
         }
-        case gif_comment_extension:
+        case gif_special_purpose_block_comment_label:
         {
             fprintf(stderr, "gif comment extension not implemented yet");
             exit(EXIT_FAILURE);
             break;
         }
         }
+    }
+
+    while (gif_is_graphic_control_extension(&gif_global_state))
+    {
+        printf("AAAA");
     }
 exit:
     fclose(file);

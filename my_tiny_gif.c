@@ -38,8 +38,8 @@ bool gif_is_special_purpose_block(struct gif_global_state_t *ptr)
 {
     switch (*(uint16_t*)(ptr->gif_pointer))
     {
-    case gif_application_extension:
-    case gif_comment_extension:
+    case gif_special_purpose_block_application_label:
+    case gif_special_purpose_block_comment_label:
         return true;
     default:
         return false;
@@ -48,17 +48,17 @@ bool gif_is_special_purpose_block(struct gif_global_state_t *ptr)
 
 void gif_get_special_purpose_block(
     struct gif_global_state_t *state,
-    struct special_purpose_block_t *block)
+    struct gif_special_purpose_block_t *block)
 {
     memcpy(block, state->gif_pointer, sizeof(*block));
     state->gif_pointer += sizeof(block->header);
 
     switch (block->header)
     {
-    case gif_application_extension:
+    case gif_special_purpose_block_application_label:
         state->gif_pointer += sizeof(block->application_extension);
         break;
-    case gif_comment_extension:
+    case gif_special_purpose_block_comment_label:
         state->gif_pointer += sizeof(block->comment_extension);
         break;
     }
@@ -66,12 +66,12 @@ void gif_get_special_purpose_block(
 
 void gif_get_special_purpose_block_sub_blocks(
     struct gif_global_state_t *state,
-    struct special_purpose_block_t *block,
+    struct gif_special_purpose_block_t *block,
     uint8_t *const sub_blocks)
 {
     switch (block->header)
     {
-    case gif_application_extension:
+    case gif_special_purpose_block_application_label:
     {
         uint8_t sub_blocks_block_size = block->application_extension.sub_blocks_block_size;
 
@@ -83,7 +83,18 @@ void gif_get_special_purpose_block_sub_blocks(
 
         break;
     }
-    case gif_comment_extension:
+    case gif_special_purpose_block_comment_label:
         break;
+    }
+}
+
+bool gif_is_graphic_control_extension(struct gif_global_state_t *ptr)
+{
+    switch (*(uint16_t*)(ptr->gif_pointer))
+    {
+    case gif_control_block_graphic_label:
+        return true;
+    default:
+        return false;
     }
 }
