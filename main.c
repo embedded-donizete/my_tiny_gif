@@ -6,7 +6,7 @@
 
 int main(int argc, char const *argv[])
 {
-    FILE *file = fopen("../sample/homer2.gif", "rb");
+    FILE *file = fopen("../sample/homer.gif", "rb");
     if (!file)
     {
         fprintf(stderr, "File can't be open");
@@ -38,13 +38,12 @@ int main(int argc, char const *argv[])
     gif_global_state.color_map_memory = global_color_map_memory;
 
     gif_get_global_state(gif_data, &gif_global_state);
-    printf("Global offset: %x\n", gif_global_state.static_offset);
+    printf("Global offset: %x\n", *gif_global_state.static_offset);
 
     if (gif_is_special_purpose_block(gif_data, &gif_global_state))
     {
         struct special_purpose_block_t special_purpose_block;
         gif_get_special_purpose_block(gif_data, &gif_global_state, &special_purpose_block);
-        printf("Dynamic offset: %d\n", gif_data[gif_global_state.dynamic_offset]);
 
         switch (special_purpose_block.header)
         {
@@ -74,7 +73,7 @@ int main(int argc, char const *argv[])
         }
     }
 
-    printf("Dynamic offset: %d\n", gif_data[gif_global_state.dynamic_offset]);
+    printf("Dynamic offset: %d\n", *gif_global_state.dynamic_offset);
 exit:
     fclose(file);
 

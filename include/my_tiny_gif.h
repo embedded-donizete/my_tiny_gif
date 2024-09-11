@@ -51,9 +51,9 @@ struct gif_global_state_t
     uint8_t *color_map_memory;
     uint16_t color_map_size;
     // where data starts after header and [global map]
-    uint16_t static_offset;
+    const uint8_t* static_offset;
     // where our current iteration is pointing to
-    uint16_t dynamic_offset;
+    const uint8_t* dynamic_offset;
 };
 
 void gif_get_header(const uint8_t *const _, struct gif_header_t *);
