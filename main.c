@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
     while (true)
     {
         uint16_t extension_block_label;
-        uint8_t extension_block_data_size;
+        uint8_t extension_block_sub_block_size;
 
         while ((extension_block_label = gif_is_extension_block(&gif_global_state)))
         {
@@ -51,19 +51,25 @@ int main(int argc, char const *argv[])
                 printf("Application extension identifier: %.*s\n", 8, extension.application_identifier);
                 printf("Application extension auth code: %.*s\n", 3, extension.application_authentication_code);
 
-                while ((extension_block_data_size = gif_get_extension_block_sub_blocks_size(&gif_global_state)))
+                while ((extension_block_sub_block_size = gif_get_extension_block_sub_blocks_size(&gif_global_state)))
                 {
-                    uint8_t sub_blocks[extension_block_data_size];
-                    gif_get_extension_block_sub_blocks(&gif_global_state, extension_block_data_size, sub_blocks);
-                    printf("Sub blocks' size: %d\n", extension_block_data_size);
+                    uint8_t sub_blocks[extension_block_sub_block_size];
+                    gif_get_extension_block_sub_blocks(&gif_global_state, extension_block_sub_block_size, sub_blocks);
+                    printf("Sub blocks' size: %d\n", extension_block_sub_block_size);
                 }
 
                 break;
             }
             case gif_comment_extension_label:
             {
-                fprintf(stderr, "gif comment extension not implemented yet");
-                exit(EXIT_FAILURE);
+                printf("--- Start comment extension data --- \n");
+                while ((extension_block_sub_block_size = gif_get_extension_block_sub_blocks_size(&gif_global_state)))
+                {
+                    uint8_t sub_blocks[extension_block_sub_block_size];
+                    gif_get_extension_block_sub_blocks(&gif_global_state, extension_block_sub_block_size, sub_blocks);
+                    printf("%.*s", extension_block_sub_block_size, sub_blocks);
+                }
+                printf("\n--- Finis comment extension data ---\n");
                 break;
             }
             case gif_graphic_control_extension_label:
