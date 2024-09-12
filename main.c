@@ -37,42 +37,40 @@ int main(int argc, char const *argv[])
 
     while (true)
     {
-        while (gif_is_special_purpose_block(&gif_global_state))
+        while (gif_is_extension_block(&gif_global_state))
         {
-            struct gif_special_purpose_block_t special_purpose_block;
-            gif_get_special_purpose_block(&gif_global_state, &special_purpose_block);
+            struct gif_extension_block_t extension_block;
+            gif_get_extension_block(&gif_global_state, &extension_block);
 
-            switch (special_purpose_block.header)
+            switch (extension_block.header)
             {
-            case gif_special_purpose_block_application_label:
+            case gif_application_extension_label:
             {
-                printf("Application extension identifier: %.*s\n", 8, special_purpose_block.application_extension.application_identifier);
-                printf("Application extension auth code: %.*s\n", 3, special_purpose_block.application_extension.application_authentication_code);
+                printf("Application extension size: %d\n", extension_block.application.block_size);
+                printf("Application extension identifier: %.*s\n", 8, extension_block.application.application_identifier);
+                printf("Application extension auth code: %.*s\n", 3, extension_block.application.application_authentication_code);
 
-                uint8_t *sub_blocks_block_size = &special_purpose_block.application_extension.sub_blocks_block_size;
-                while (*sub_blocks_block_size)
+                while (extension_block.application.sub_blocks_block_size)
                 {
-                    uint8_t sub_blocks[*sub_blocks_block_size];
-                    printf("Application extension sub blocks: %d\n", *sub_blocks_block_size);
-                    gif_get_special_purpose_block_sub_blocks(&gif_global_state, &special_purpose_block, sub_blocks);
+                    uint8_t sub_blocks[extension_block.application.sub_blocks_block_size];
+                    printf("Application extension sub blocks: %d\n", extension_block.application.sub_blocks_block_size);
+                    gif_get_extension_block_sub_blocks(&gif_global_state, &extension_block, sub_blocks);
                 }
 
                 break;
             }
-            case gif_special_purpose_block_comment_label:
+            case gif_comment_extension_label:
             {
                 fprintf(stderr, "gif comment extension not implemented yet");
                 exit(EXIT_FAILURE);
                 break;
             }
+            case gif_graphic_control_extension_label:
+            {
+                printf("Graphic control extension size: %d\n", extension_block.graphic_control.block_size);
+                break;
             }
-        }
-
-        while (gif_is_control_block_extension(&gif_global_state))
-        {
-            struct gif_control_block_extension_t control_block_extension;
-            gif_get_control_block_extension(&gif_global_state, &control_block_extension);
-            printf("Control block extension: ---\n");
+            }
         }
     }
 exit:

@@ -39,13 +39,14 @@ void gif_init_global_state(const uint8_t *const _, struct gif_global_state_t *);
 uint16_t gif_get_global_color_table_size(const struct gif_global_state_t *);
 void gif_init_global_state_color_map(struct gif_global_state_t *, uint16_t, uint8_t *);
 
-enum gif_special_purpose_block_label_enum
+enum gif_extension_block_enum
 {
-    gif_special_purpose_block_application_label = 0xFF21,
-    gif_special_purpose_block_comment_label = 0xFE21
+    gif_application_extension_label = 0xFF21,
+    gif_comment_extension_label = 0xFE21,
+    gif_graphic_control_extension_label = 0xF921
 };
 
-struct gif_special_purpose_block_application_t
+struct gif_application_extension_block_t
 {
     uint8_t block_size;
     uint8_t application_identifier[8];
@@ -53,30 +54,11 @@ struct gif_special_purpose_block_application_t
     uint8_t sub_blocks_block_size;
 };
 
-struct gif_special_purpose_block_comment_t
+struct gif_comment_extension_block_t
 {
 };
 
-struct gif_special_purpose_block_t
-{
-    uint16_t header;
-    union
-    {
-        struct gif_special_purpose_block_application_t application_extension;
-        struct gif_special_purpose_block_comment_t comment_extension;
-    };
-};
-
-bool gif_is_special_purpose_block(struct gif_global_state_t *);
-void gif_get_special_purpose_block(struct gif_global_state_t *, struct gif_special_purpose_block_t *);
-void gif_get_special_purpose_block_sub_blocks(struct gif_global_state_t *, struct gif_special_purpose_block_t *, uint8_t *const _);
-
-enum gif_control_block_label_enum
-{
-    gif_control_block_graphic_label = 0xF921
-};
-
-struct gif_control_block_extension_graphic_t
+struct gif_graphic_control_extension_block_t
 {
     uint8_t block_size;
     uint8_t packed_fields;
@@ -85,14 +67,17 @@ struct gif_control_block_extension_graphic_t
     uint8_t block_terminator;
 };
 
-struct gif_control_block_extension_t
+struct gif_extension_block_t
 {
     uint16_t header;
     union
     {
-        struct gif_control_block_extension_graphic_t graphic;
+        struct gif_application_extension_block_t application;
+        struct gif_comment_extension_block_t comment;
+        struct gif_graphic_control_extension_block_t graphic_control;
     };
 };
 
-bool gif_is_control_block_extension(struct gif_global_state_t *);
-void gif_get_control_block_extension(struct gif_global_state_t *, struct gif_control_block_extension_t *);
+bool gif_is_extension_block(struct gif_global_state_t *);
+void gif_get_extension_block(struct gif_global_state_t *, struct gif_extension_block_t *);
+void gif_get_extension_block_sub_blocks(struct gif_global_state_t *, struct gif_extension_block_t *, uint8_t *const _);
