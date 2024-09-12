@@ -35,60 +35,45 @@ void gif_init_global_state_color_map(struct gif_global_state_t *ptr, uint16_t si
     ptr->gif_pointer += size;
 }
 
-bool gif_is_extension_block(struct gif_global_state_t *ptr)
+uint16_t gif_is_extension_block(struct gif_global_state_t *ptr)
 {
-    switch (*(uint16_t *)(ptr->gif_pointer))
+    uint16_t extension_block_label = *(uint16_t *)(ptr->gif_pointer);
+    switch (extension_block_label)
     {
     case gif_application_extension_label:
     case gif_comment_extension_label:
     case gif_graphic_control_extension_label:
-        return true;
+        ptr->gif_pointer += sizeof(uint16_t);
+        return extension_block_label;
     default:
-        return false;
+        return 0;
     }
 }
 
 void gif_get_extension_block(
     struct gif_global_state_t *state,
-    struct gif_extension_block_t *block)
+    void *dst)
 {
-    memcpy(block, state->gif_pointer, sizeof(*block));
-    state->gif_pointer += sizeof(block->header);
+    uint8_t block_size = *state->gif_pointer;
+    state->gif_pointer += sizeof(uint8_t);
 
-    switch (block->header)
-    {
-    case gif_application_extension_label:
-        state->gif_pointer += sizeof(block->application);
-        break;
-    case gif_comment_extension_label:
-        state->gif_pointer += sizeof(block->comment);
-        break;
-    case gif_graphic_control_extension_label:
-        state->gif_pointer += sizeof(block->graphic_control);
-        break;
-    }
+    memcpy(dst, state->gif_pointer, block_size);
+    state->gif_pointer += block_size;
+}
+
+uint8_t gif_get_extension_block_sub_blocks_size(struct gif_global_state_t *ptr)
+{
+    uint8_t size = *ptr->gif_pointer;
+    ptr->gif_pointer += sizeof(uint8_t);
+
+    return size;
 }
 
 void gif_get_extension_block_sub_blocks(
     struct gif_global_state_t *state,
-    struct gif_extension_block_t *block,
+    uint8_t data_size,
     uint8_t *const sub_blocks)
 {
-    switch (block->header)
-    {
-    case gif_application_extension_label:
-    {
-        uint8_t sub_blocks_block_size = block->application.sub_blocks_block_size;
-
-        memcpy(sub_blocks, state->gif_pointer, sub_blocks_block_size);
-        state->gif_pointer += sub_blocks_block_size;
-
-        memcpy(&block->application.sub_blocks_block_size, state->gif_pointer, sizeof(uint8_t));
-        state->gif_pointer += sizeof(uint8_t);
-
-        break;
-    }
-    case gif_comment_extension_label:
-        break;
-    }
+    memcpy(sub_blocks, state->gif_pointer, data_size);
+    state->gif_pointer += data_size;
 }

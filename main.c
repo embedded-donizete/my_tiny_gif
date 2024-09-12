@@ -37,24 +37,25 @@ int main(int argc, char const *argv[])
 
     while (true)
     {
-        while (gif_is_extension_block(&gif_global_state))
-        {
-            struct gif_extension_block_t extension_block;
-            gif_get_extension_block(&gif_global_state, &extension_block);
+        uint16_t extension_block_label;
+        uint8_t extension_block_data_size;
 
-            switch (extension_block.header)
+        while ((extension_block_label = gif_is_extension_block(&gif_global_state)))
+        {
+            switch (extension_block_label)
             {
             case gif_application_extension_label:
             {
-                printf("Application extension size: %d\n", extension_block.application.block_size);
-                printf("Application extension identifier: %.*s\n", 8, extension_block.application.application_identifier);
-                printf("Application extension auth code: %.*s\n", 3, extension_block.application.application_authentication_code);
+                struct gif_application_extension_block_t extension;
+                gif_get_extension_block(&gif_global_state, &extension);
+                printf("Application extension identifier: %.*s\n", 8, extension.application_identifier);
+                printf("Application extension auth code: %.*s\n", 3, extension.application_authentication_code);
 
-                while (extension_block.application.sub_blocks_block_size)
+                while ((extension_block_data_size = gif_get_extension_block_sub_blocks_size(&gif_global_state)))
                 {
-                    uint8_t sub_blocks[extension_block.application.sub_blocks_block_size];
-                    printf("Application extension sub blocks: %d\n", extension_block.application.sub_blocks_block_size);
-                    gif_get_extension_block_sub_blocks(&gif_global_state, &extension_block, sub_blocks);
+                    uint8_t sub_blocks[extension_block_data_size];
+                    gif_get_extension_block_sub_blocks(&gif_global_state, extension_block_data_size, sub_blocks);
+                    printf("Sub blocks' size: %d\n", extension_block_data_size);
                 }
 
                 break;
@@ -67,7 +68,14 @@ int main(int argc, char const *argv[])
             }
             case gif_graphic_control_extension_label:
             {
-                printf("Graphic control extension size: %d\n", extension_block.graphic_control.block_size);
+                struct gif_graphic_control_extension_block_t extension;
+                gif_get_extension_block(&gif_global_state, &extension);
+                printf("Graphic control extension size: %d\n", extension.delay_time);
+                if (gif_get_extension_block_sub_blocks_size(&gif_global_state))
+                {
+                    fprintf(stderr, "Graphic control extension should not have sub data");
+                    exit(EXIT_FAILURE);
+                }
                 break;
             }
             }
