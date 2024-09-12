@@ -67,3 +67,14 @@ uint16_t gif_is_extension_block(struct gif_global_state_t *);
 void gif_get_extension_block(struct gif_global_state_t *, void *);
 uint8_t gif_get_extension_block_sub_blocks_size(struct gif_global_state_t *);
 void gif_get_extension_block_sub_blocks(struct gif_global_state_t *, uint8_t, uint8_t *const _);
+
+struct gif_image_descriptor_t {
+    uint8_t separator;
+    uint16_t left_position;
+    uint16_t right_position;
+    uint16_t width;
+    uint16_t height;
+    uint8_t packed_fields;
+} __attribute__((packed));
+
+void gif_get_image_descriptor(struct gif_global_state_t*, struct gif_image_descriptor_t*);

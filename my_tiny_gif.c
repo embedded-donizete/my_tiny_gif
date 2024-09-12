@@ -77,3 +77,11 @@ void gif_get_extension_block_sub_blocks(
     memcpy(sub_blocks, state->gif_pointer, data_size);
     state->gif_pointer += data_size;
 }
+
+void gif_get_image_descriptor(
+    struct gif_global_state_t *state,
+    struct gif_image_descriptor_t *ptr)
+{
+    memcpy(ptr, state->gif_pointer, sizeof(*ptr));
+    state->gif_pointer += sizeof(*ptr);
+}

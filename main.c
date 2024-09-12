@@ -86,6 +86,13 @@ int main(int argc, char const *argv[])
             }
             }
         }
+
+        struct gif_image_descriptor_t image_descriptor;
+        gif_get_image_descriptor(&gif_global_state, &image_descriptor);
+        printf("Image descriptor width: %d\n", image_descriptor.width);
+        printf("Image descriptor height: %d\n", image_descriptor.height);
+
+        printf("Finished frame\n");
     }
 exit:
     fclose(file);
