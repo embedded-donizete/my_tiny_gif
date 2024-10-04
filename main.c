@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
 
     uint16_t global_color_map_size = gif_get_global_color_table_size(&gif_global_state);
     uint8_t global_color_map_buffer[global_color_map_size];
-    gif_init_global_state_color_map(&gif_global_state, global_color_map_size, global_color_map_buffer);
+    gif_init_global_state_color_map(&gif_global_state, global_color_map_buffer, global_color_map_size);
     printf("Color map: %d\n", global_color_map_buffer[global_color_map_size - 1]);
 
     while (true)

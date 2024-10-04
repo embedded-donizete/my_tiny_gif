@@ -37,7 +37,7 @@ struct gif_global_state_t
 
 void gif_init_global_state(const uint8_t *const _, struct gif_global_state_t *);
 uint16_t gif_get_global_color_table_size(const struct gif_global_state_t *);
-void gif_init_global_state_color_map(struct gif_global_state_t *, uint16_t, uint8_t *);
+void gif_init_global_state_color_map(struct gif_global_state_t *, uint8_t *, uint16_t);
 
 enum gif_extension_block_enum
 {

@@ -3,16 +3,15 @@
 
 #include <my_tiny_gif.h>
 
-void gif_init_global_state(const uint8_t *const gif, struct gif_global_state_t *ptr)
+#define memcpy_and_inc_state(dst, size)    \
+    memcpy(dst, state->gif_pointer, size); \
+    state->gif_pointer += size;
+
+void gif_init_global_state(const uint8_t *const gif, struct gif_global_state_t *state)
 {
-    memset(ptr, 0, sizeof(*ptr));
-    ptr->gif_pointer = gif;
-
-    memcpy(&ptr->header, ptr->gif_pointer, sizeof(ptr->header));
-    ptr->gif_pointer += sizeof(ptr->header);
-
-    memcpy(&ptr->logical_screen_descriptor, ptr->gif_pointer, sizeof(ptr->logical_screen_descriptor));
-    ptr->gif_pointer += sizeof(ptr->logical_screen_descriptor);
+    state->gif_pointer = gif;
+    memcpy_and_inc_state(&state->header, sizeof(state->header));
+    memcpy_and_inc_state(&state->logical_screen_descriptor, sizeof(state->logical_screen_descriptor));
 }
 
 uint16_t gif_get_global_color_table_size(const struct gif_global_state_t *ptr)
@@ -26,13 +25,12 @@ uint16_t gif_get_global_color_table_size(const struct gif_global_state_t *ptr)
     return 0;
 }
 
-void gif_init_global_state_color_map(struct gif_global_state_t *ptr, uint16_t size, uint8_t *buffer)
+void gif_init_global_state_color_map(struct gif_global_state_t *state, uint8_t *buffer, uint16_t size)
 {
-    ptr->color_map_buffer = buffer;
-    ptr->color_map_size = size;
+    state->color_map_buffer = buffer;
+    state->color_map_size = size;
 
-    memcpy(buffer, ptr->gif_pointer, size);
-    ptr->gif_pointer += size;
+    memcpy_and_inc_state(buffer, size);
 }
 
 uint16_t gif_is_extension_block(struct gif_global_state_t *ptr)
@@ -54,18 +52,15 @@ void gif_get_extension_block(
     struct gif_global_state_t *state,
     void *dst)
 {
-    uint8_t block_size = *state->gif_pointer;
-    state->gif_pointer += sizeof(uint8_t);
-
-    memcpy(dst, state->gif_pointer, block_size);
-    state->gif_pointer += block_size;
+    uint8_t block_size;
+    memcpy_and_inc_state(&block_size, sizeof(uint8_t));
+    memcpy_and_inc_state(dst, block_size);
 }
 
-uint8_t gif_get_extension_block_sub_blocks_size(struct gif_global_state_t *ptr)
+uint8_t gif_get_extension_block_sub_blocks_size(struct gif_global_state_t *state)
 {
-    uint8_t size = *ptr->gif_pointer;
-    ptr->gif_pointer += sizeof(uint8_t);
-
+    uint8_t size;
+    memcpy_and_inc_state(&size, sizeof(uint8_t));
     return size;
 }
 
@@ -74,14 +69,12 @@ void gif_get_extension_block_sub_blocks(
     uint8_t data_size,
     uint8_t *const sub_blocks)
 {
-    memcpy(sub_blocks, state->gif_pointer, data_size);
-    state->gif_pointer += data_size;
+    memcpy_and_inc_state(sub_blocks, data_size);
 }
 
 void gif_get_image_descriptor(
     struct gif_global_state_t *state,
-    struct gif_image_descriptor_t *ptr)
+    struct gif_image_descriptor_t *image_descriptor)
 {
-    memcpy(ptr, state->gif_pointer, sizeof(*ptr));
-    state->gif_pointer += sizeof(*ptr);
+    memcpy_and_inc_state(image_descriptor, sizeof(*image_descriptor));
 }
